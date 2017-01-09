@@ -1,0 +1,4 @@
+#!/bin/bash
+    for seed in {96..100}; do
+		    make sim.$seed.Rout
+ done
