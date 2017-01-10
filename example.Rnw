@@ -17,7 +17,7 @@ Create a depmix object
 library(depmixS4)
 tempmod <- (depmix(y~1  # response 
   , nstates = 2 # number of states
-  , transition=~cos(time/(2*pi))+sin(time/(2*pi)) # transition structure 
+  , transition=~cos(2*pi*time/24)+sin(2*pi*time/24) # transition structure 
   , family= gaussian()
   , data=tempdat
 )
