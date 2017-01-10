@@ -4,7 +4,6 @@ library(dplyr)
 library(plyr)
 
 catid <- unlist(strsplit(rtargetname,split="[.]"))[2]
-dat <- readRDS(input_files)
 
 fithmmsin <- function(state,cat,seed=NULL){
   if(!is.null(seed))set.seed(seed)

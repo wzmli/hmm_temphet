@@ -49,4 +49,8 @@ simdf <- data.frame(y=simdat@response[[1]][[1]]@y
 
 head(simdf)
 @
+
+\section{Fitting HMMs}
+
+
 \end{document}

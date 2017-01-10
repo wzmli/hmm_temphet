@@ -10,16 +10,16 @@ current:  paper3.pdf.now
 cat.%.df.Rout: dataframe.R ArchivePantherData.csv
 	$(run-R)
 
-cat.1.%.Rout: cat.1.df.Rout cat.1.RDS mikesim.R ./models/%.R 
+cat.1.%.Rout: cat.1.df.Rout cat.1.RDS simulate.R ./models/%.R 
 	$(run-R) 
 
-cat.2.%.Rout: cat.2.df.Rout cat.2.RDS mikesim.R ./models/%.R 
+cat.2.%.Rout: cat.2.df.Rout cat.2.RDS simulate.R ./models/%.R 
 	$(run-R) 
 
-cat.14.%.Rout: cat.14.df.Rout cat.14.RDS mikesim.R ./models/%.R 
+cat.14.%.Rout: cat.14.df.Rout cat.14.RDS simulate.R ./models/%.R 
 	$(run-R) 
 
-cat.15.%.Rout: cat.15.df.Rout cat.15.RDS mikesim.R ./models/%.R 
+cat.15.%.Rout: cat.15.df.Rout cat.15.RDS simulate.R ./models/%.R 
 	$(run-R) 
 
 

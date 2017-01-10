@@ -8,9 +8,7 @@ library(stats)
 library(dplyr)
 library(plyr)
 
-files <- commandArgs(trailingOnly = TRUE)
-catid <- unlist(strsplit(files[1],split="[.]"))[2]
-dat <- readRDS(files[1])
+catid <- unlist(strsplit(rtargetname,split="[.]"))[2]
 
 
 # VM setup ----

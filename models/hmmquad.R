@@ -3,10 +3,7 @@ library(methods)
 library(dplyr)
 library(plyr)
 
-files <- commandArgs(trailingOnly = TRUE)
-catid <- unlist(strsplit(files[1],split="[.]"))[2]
-dat <- readRDS(files[1])
-source(files[2])
+catid <- unlist(strsplit(rtargetname,split="[.]"))[2]
 
 fithmmquad <- function(state,cat,seed=NULL){
   if(!is.null(seed))set.seed(seed)

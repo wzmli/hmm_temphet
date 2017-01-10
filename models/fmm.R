@@ -2,10 +2,7 @@ library(depmixS4)
 library(dplyr)
 library(plyr)
 
-files <- commandArgs(trailingOnly = TRUE)
-catid <- unlist(strsplit(files[1],split="[.]"))[2]
-dat <- readRDS(files[1])
-source(files[2])
+catid <- unlist(strsplit(rtargetname,split="[.]"))[2]
 
 fitmix <- function(state,cat,seed=2830){
   model <- mix(LogDist~1,
