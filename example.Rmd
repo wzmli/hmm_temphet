@@ -1,0 +1,76 @@
+---
+title: "Example"
+author: "Michael Li"
+date: "January 10, 2017"
+output: html_document
+---
+
+### Simulating Animal movement using depmixS4
+
+DepmixS4 is one of many package to fit hidden Markov models (HMM). In this example, we will demostrate how to simulate and fit covariate-dependent transition HMM using depmixS4.
+
+```{r setup}
+tempdat <- data.frame(time=rep(1:24,500),y=NA)
+head(tempdat)
+```
+
+Create a depmix object
+
+```{r temp depmix object, echo=FALSE}
+library(depmixS4)
+tempmod <- (depmix(y~1  # response 
+  , nstates = 2 # number of states
+  , transition=~cos(2*pi*time/24)+sin(2*pi*time/24) # transition structure 
+  , family= gaussian()
+  , data=tempdat
+)
+)
+
+summary(tempmod)
+```
+
+Set HMM parameters 
+
+```{r set parameters}
+setpars(tempmod, c(0.1, 0.9 # Initial prob parameters
+  , 0 , 1 , 0 , 1 , 0 , 1 , 0 , -1 , 0 , -1 , 0 , -1 # Sinusoidal parameters for state switch (mlogit)
+  , 0 , 1 , 2 , 1 # emission distribution parameters 
+  )
+)
+
+summary(tempmod)
+```
+
+Simulate hidden states and response data and put it back into a data frame. Strongly recommend simulating the response data using R, especially for user defined emission distrubtions.
+
+```{r simulate hmm}
+source("simulate.R")
+simdat <- simhmm(tempmod,nsim=1)
+simdf <- data.frame(y=simdat@response[[1]][[1]]@y
+  , states = simdat@states
+  , time = tempdat$time)
+
+head(simdf)
+```
+
+### Fitting HMM
+
+Create a new depmix object and fit the simulated data above 
+
+```{r fit depmix}
+source("simulate.R")
+simdf <- data.frame(y=simdat@response[[1]][[1]]@y
+  , states = simdat@states
+  , time = tempdat$time)
+
+mod <- (depmix(y~1  # response 
+  , nstates = 2 # number of states
+  , transition=~cos(2*pi*time/24)+sin(2*pi*time/24) # transition structure 
+  , family= gaussian()
+  , data=simdf
+)
+)
+
+fitmod <- fit(mod,verbose=FALSE)
+summary(fitmod)
+```
