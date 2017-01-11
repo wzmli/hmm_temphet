@@ -126,7 +126,7 @@ $(document).ready(function () {
 <div id="simulating-animal-movement-using-depmixs4" class="section level3">
 <h3>Simulating Animal movement using depmixS4</h3>
 <p>DepmixS4 is one of many package to fit hidden Markov models (HMM). In this example, we will demostrate how to simulate and fit covariate-dependent transition HMM using depmixS4.</p>
-<pre class="r"><code>tempdat &lt;- data.frame(time=rep(1:24,50),y=NA)
+<pre class="r"><code>tempdat &lt;- data.frame(time=rep(1:24,100),y=NA)
 head(tempdat)</code></pre>
 <pre><code>##   time  y
 ## 1    1 NA
@@ -170,11 +170,13 @@ head(tempdat)</code></pre>
 ## St1               0      1
 ## St2               0      1</code></pre>
 <p>Set HMM parameters</p>
-<pre class="r"><code>setpars(tempmod, c(0.1, 0.9 # Initial prob parameters
-  , 0 , 1 , 0 , 1 , 0 , 1 , 0 , -1 , 0 , -1 , 0 , -1 # Sinusoidal parameters for state switch (mlogit)
-  , 0 , 1 , 2 , 1 # emission distribution parameters 
+<pre class="r"><code>tempmod2 &lt;- setpars(tempmod, c(0.1, 0.9 # Initial prob parameters
+  , 0 , 2 , 0 , 2 , 0 , 2 , 0 , -2 , 0 , -2 , 0 , -2 # Sinusoidal parameters for state switch (mlogit)
+  , 2, 1 , 0 , 1 # emission distribution parameters 
   )
-)</code></pre>
+)
+
+summary(tempmod2)</code></pre>
 <pre><code>## Initial state probabilties model 
 ## pr1 pr2 
 ## 0.1 0.9 
@@ -183,74 +185,43 @@ head(tempdat)</code></pre>
 ## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
 ## Coefficients: 
 ##                       St1 St2
-## (Intercept)             0   1
-## cos(2 * pi * time/24)   0   1
-## sin(2 * pi * time/24)   0   1
+## (Intercept)             0   2
+## cos(2 * pi * time/24)   0   2
+## sin(2 * pi * time/24)   0   2
 ## Probalities at zero values of the covariates.
-## 0.2689414 0.7310586 
+## 0.1192029 0.8807971 
 ## 
 ## Transition model for state (component) 2 
 ## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
 ## Coefficients: 
 ##                       St1 St2
-## (Intercept)             0  -1
-## cos(2 * pi * time/24)   0  -1
-## sin(2 * pi * time/24)   0  -1
+## (Intercept)             0  -2
+## cos(2 * pi * time/24)   0  -2
+## sin(2 * pi * time/24)   0  -2
 ## Probalities at zero values of the covariates.
-## 0.7310586 0.2689414 
+## 0.8807971 0.1192029 
 ## 
 ## 
 ## Response parameters 
 ## Resp 1 : gaussian 
 ##     Re1.(Intercept) Re1.sd
-## St1               0      1
-## St2               2      1</code></pre>
-<pre class="r"><code>summary(tempmod)</code></pre>
-<pre><code>## Initial state probabilties model 
-## pr1 pr2 
-## 0.5 0.5 
-## 
-## Transition model for state (component) 1 
-## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
-## Coefficients: 
-##                       St1 St2
-## (Intercept)             0   0
-## cos(2 * pi * time/24)   0   0
-## sin(2 * pi * time/24)   0   0
-## Probalities at zero values of the covariates.
-## 0.5 0.5 
-## 
-## Transition model for state (component) 2 
-## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
-## Coefficients: 
-##                       St1 St2
-## (Intercept)             0   0
-## cos(2 * pi * time/24)   0   0
-## sin(2 * pi * time/24)   0   0
-## Probalities at zero values of the covariates.
-## 0.5 0.5 
-## 
-## 
-## Response parameters 
-## Resp 1 : gaussian 
-##     Re1.(Intercept) Re1.sd
-## St1               0      1
+## St1               2      1
 ## St2               0      1</code></pre>
 <p>Simulate hidden states and response data and put it back into a data frame. Strongly recommend simulating the response data using R, especially for user defined emission distrubtions.</p>
 <pre class="r"><code>source(&quot;simulate.R&quot;)
-simdat &lt;- simhmm(tempmod,nsim=1)
+simdat &lt;- simhmm(tempmod2,nsim=1)
 simdf &lt;- data.frame(y=simdat@response[[1]][[1]]@y
   , states = simdat@states
   , time = tempdat$time)
 
 head(simdf)</code></pre>
-<pre><code>##               y states time
-## 1 -0.6514806088      1    1
-## 2 -0.2823111855      2    2
-## 3 -0.1886893477      2    3
-## 4 -0.2985603008      1    4
-## 5 -0.0005190026      1    5
-## 6 -0.2060001279      2    6</code></pre>
+<pre><code>##            y states time
+## 1  2.1675800      1    1
+## 2 -0.1524507      2    2
+## 3  2.7712699      1    3
+## 4  1.2789240      2    4
+## 5  2.4461855      1    5
+## 6  0.2599461      2    6</code></pre>
 </div>
 <div id="fitting-hmm" class="section level3">
 <h3>Fitting HMM</h3>
@@ -267,39 +238,99 @@ mod &lt;- (depmix(y~1  # response
   , data=simdf
 )
 )
-
-fitmod &lt;- fit(mod,verbose=FALSE)
-summary(fitmod)</code></pre>
+set.seed(1)
+fitmod &lt;- fit(mod,verbose=FALSE)</code></pre>
+<pre><code>## converged at iteration 111 with logLik: -3894.125</code></pre>
+<pre class="r"><code>summary(fitmod)</code></pre>
 <pre><code>## Initial state probabilties model 
 ## pr1 pr2 
-##   1   0 
+##   0   1 
 ## 
 ## Transition model for state (component) 1 
 ## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
 ## Coefficients: 
-##                       St1         St2
-## (Intercept)             0  0.02058067
-## cos(2 * pi * time/24)   0 -1.49325967
-## sin(2 * pi * time/24)   0 -0.52590505
+##                       St1      St2
+## (Intercept)             0 2.278506
+## cos(2 * pi * time/24)   0 2.653767
+## sin(2 * pi * time/24)   0 2.087787
 ## Probalities at zero values of the covariates.
-## 0.494855 0.505145 
+## 0.09291877 0.9070812 
 ## 
 ## Transition model for state (component) 2 
 ## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
 ## Coefficients: 
-##                       St1        St2
-## (Intercept)             0 -0.9938245
-## cos(2 * pi * time/24)   0  0.5990597
-## sin(2 * pi * time/24)   0  3.9290939
+##                       St1       St2
+## (Intercept)             0 -1.813430
+## cos(2 * pi * time/24)   0 -1.793069
+## sin(2 * pi * time/24)   0 -1.835081
 ## Probalities at zero values of the covariates.
-## 0.7298427 0.2701573 
+## 0.8597759 0.1402241 
 ## 
 ## 
 ## Response parameters 
 ## Resp 1 : gaussian 
 ##     Re1.(Intercept) Re1.sd
-## St1           0.029  0.888
-## St2           0.081  1.079</code></pre>
+## St1           0.000  1.012
+## St2           1.987  0.999</code></pre>
+</div>
+<div id="user-define-family-weibull" class="section level3">
+<h3>User define family (weibull)</h3>
+<pre class="r"><code>source(&quot;Weibull_setup.R&quot;)
+
+simdf2 &lt;- data.frame(y=exp(simdat@response[[1]][[1]]@y)
+  , states = simdat@states
+  , time = tempdat$time)
+
+rModels &lt;- list()
+rModels[[1]] &lt;- list()
+rModels[[1]][[1]] &lt;- weibull(simdf2$y, pstart = c(0.5,0.5),data=simdf2)
+
+rModels[[2]] &lt;- list()
+rModels[[2]][[1]] &lt;- weibull(simdf2$y, pstart = c(1.5,1.5),data=simdf2)
+
+trstart &lt;- rep(1/2,4)
+transition &lt;- list()
+transition[[1]] &lt;- transInit(~ cos(2*pi*time/24)+ sin(2*pi*time/24), nst = 2, data=simdf2,
+                             pstart = c(1/2,1/2,0,1/2,0,1/2))
+transition[[2]] &lt;- transInit(~ cos(2*pi*time/24)+ sin(2*pi*time/24), nst = 2,data=simdf2,
+                             pstart = c(1/2,1/2,0,1/2,0,1/2))
+inMod &lt;- transInit(~ 1, ns = 2, pstart = rep(1/2, 2),
+                   data = data.frame(1))
+mod2 &lt;- makeDepmix(response = rModels, transition = transition,
+                  prior=inMod,homogeneous = FALSE)
+
+fitmod2 &lt;- fit(mod2, verbose = FALSE, emc=em.control(rand=FALSE, maxit=460))</code></pre>
+<pre><code>## converged at iteration 21 with logLik: -6337.316</code></pre>
+<pre class="r"><code>summary(fitmod2)</code></pre>
+<pre><code>## Initial state probabilties model 
+##             St1     St2
+## (Intercept)   0 -10.629
+## 
+## Transition model for state (component) 1 
+## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
+## Coefficients: 
+##                       St1      St2
+## (Intercept)             0 1.440191
+## cos(2 * pi * time/24)   0 1.551058
+## sin(2 * pi * time/24)   0 1.548372
+## Probalities at zero values of the covariates.
+## 0.1915158 0.8084842 
+## 
+## Transition model for state (component) 2 
+## Model of type multinomial (mlogit), formula: ~cos(2 * pi * time/24) + sin(2 * pi * time/24)
+## Coefficients: 
+##                       St1       St2
+## (Intercept)             0 -2.755347
+## cos(2 * pi * time/24)   0 -3.044262
+## sin(2 * pi * time/24)   0 -2.218542
+## Probalities at zero values of the covariates.
+## 0.9402146 0.05978538 
+## 
+## 
+## Response parameters 
+##     Re1.shape Re1.scale
+## St1     0.984    11.488
+## St2     1.165     1.600</code></pre>
 </div>
 
 
